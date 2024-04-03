@@ -8,6 +8,7 @@ dotenv.config() // load env vars
 
 // routes
 import testRoute from './routes/test'
+import clerkWebhookRoute from './routes/clerkWeebhook'
 
 const app = express()
 const port = process.env.PORT
@@ -20,10 +21,10 @@ if (!process.env.PORT) {
 app.use(cors()) // Enable CORS for all routes
 app.use(helmet()) // Set security-related HTTP headers
 app.use(morgan('combined')) // Logging HTTP requests
-app.use(express.json())
 
 // routes
-app.use('/test', testRoute)
+app.use('/test', express.json(), testRoute)
+app.use('/webhook', clerkWebhookRoute)
 
 // Route not found (404)
 app.use((req, res, next) => {
