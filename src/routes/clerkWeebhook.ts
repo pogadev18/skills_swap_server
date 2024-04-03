@@ -1,7 +1,7 @@
 import express from 'express'
 import { Webhook } from 'svix'
-import bodyParser from 'body-parser'
 import type { WebhookEvent } from '@clerk/clerk-sdk-node'
+import bodyParser from 'body-parser'
 
 import {
   handleUserCreated,
