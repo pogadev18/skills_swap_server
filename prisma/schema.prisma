@@ -1,0 +1,56 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id String @id @default(cuid())
+  clerkId         String      @unique
+  bio             String?
+  location        String?
+  availability    String?
+  skills          UserSkill[]
+  givenRatings    Rating[]    @relation("GivenRatings") // Ratings given by this user
+  receivedRatings Rating[]    @relation("ReceivedRatings") // Ratings received by this user
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+}
+
+model Skill {
+  id    String      @id @default(cuid())
+  name  String
+  tags  Tag[]
+  users UserSkill[]
+}
+
+model UserSkill {
+  userId    String
+  skillId   String
+  isOffered Boolean @default(false)
+  weight    Int     @default(0)
+  user      User    @relation(fields: [userId], references: [clerkId])
+  skill     Skill   @relation(fields: [skillId], references: [id])
+
+  @@id([userId, skillId])
+}
+
+model Rating {
+  id         String   @id @default(cuid())
+  reviewerId String
+  revieweeId String
+  score      Int
+  comment    String?
+  reviewer   User     @relation("GivenRatings", fields: [reviewerId], references: [clerkId])
+  reviewee   User     @relation("ReceivedRatings", fields: [revieweeId], references: [clerkId])
+  createdAt  DateTime @default(now())
+}
+
+model Tag {
+  id     String  @id @default(cuid())
+  name   String  @unique
+  skills Skill[]
+}
