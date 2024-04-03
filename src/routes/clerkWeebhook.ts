@@ -23,9 +23,6 @@ router.post(
     const headers = req.headers
     const payload = req.body
 
-    console.log('type of payload:', typeof payload)
-    console.log(headers)
-
     const svix_id = headers['svix-id'] as string
     const svix_timestamp = headers['svix-timestamp'] as string
     const svix_signature = headers['svix-signature'] as string
@@ -60,17 +57,12 @@ router.post(
     // const { id } = evt.data
     const eventType = evt.type
 
-    switch (eventType) {
-      case 'user.created':
-        // @ts-ignore -> take a look at the WebhookEvent type or use some utility types
-        handleUserCreated(evt.data)
-        break
-      case 'user.deleted':
-        // @ts-ignore -> take a look at the WebhookEvent type or use some utility types
-        handleUserDeleted(evt.data)
-        break
-      default:
-        console.log(`Unhandled event type: ${eventType}`)
+    if (eventType === 'user.created') {
+      await handleUserCreated(evt)
+    }
+
+    if (eventType === 'user.deleted') {
+      await handleUserDeleted(evt)
     }
 
     return res.status(200).json({
