@@ -23,43 +23,59 @@ type SkillData = {
 }
 
 async function createOrUpdateUserSkill(userId: string, skillData: SkillData) {
-  // Find or create the Skill
-  const skill = await prisma.skill.upsert({
-    // @ts-ignore -> todo: fix this
-    where: { name: skillData.name },
-    create: { name: skillData.name },
-    update: {}
-  })
+  console.log(`Starting process to create or update skill for user ${userId}`)
 
-  // Create or update the UserSkill
-  await prisma.userSkill.upsert({
-    where: {
-      userId_skillId: {
-        userId,
-        skillId: skill.id
-      }
-    },
-    create: {
-      userId,
-      skillId: skill.id,
-      isOffered: skillData.isOffered,
-      weight: skillData.weight
-      // isActive could be set elsewhere, e.g., when a match is made
-    },
-    update: {
-      isOffered: skillData.isOffered,
-      weight: skillData.weight
-      // isActive if needed
-    }
-  })
-
-  // process tags
-  for (const tagName of skillData.tags) {
-    await prisma.tag.upsert({
-      where: { name: tagName },
-      create: { name: tagName, skills: { connect: { id: skill.id } } },
+  try {
+    console.log(`Upserting skill: ${skillData.name}`)
+    // Find or create the Skill
+    let skill = await prisma.skill.upsert({
+      where: { name: skillData.name },
+      create: { name: skillData.name },
       update: {}
     })
+    console.log(`Upserted skill: ${skill.id}`)
+
+    console.log(`Upserting user skill for user ${userId} and skill ${skill.id}`)
+    // Create or update the UserSkill
+    await prisma.userSkill.upsert({
+      where: {
+        userId_skillId: {
+          userId,
+          skillId: skill.id
+        }
+      },
+      create: {
+        userId,
+        skillId: skill.id,
+        isOffered: skillData.isOffered,
+        weight: skillData.weight
+        // isActive could be set elsewhere, e.g., when a match is made
+      },
+      update: {
+        isOffered: skillData.isOffered,
+        weight: skillData.weight
+        // isActive if needed
+      }
+    })
+    console.log(`Upserted user skill for user ${userId}`)
+
+    // Process tags
+    console.log(`Processing tags for skill ${skill.id}`)
+    for (const tagName of skillData.tags) {
+      console.log(`Upserting tag: ${tagName}`)
+      await prisma.tag.upsert({
+        where: { name: tagName },
+        create: { name: tagName, skills: { connect: { id: skill.id } } },
+        update: {}
+      })
+      console.log(`Upserted tag: ${tagName}`)
+    }
+    console.log(`Processed all tags for skill ${skill.id}`)
+
+    console.log(`Finished process for user ${userId}`)
+  } catch (error) {
+    console.error('Error during createOrUpdateUserSkill:', error)
+    throw error
   }
 }
 
@@ -69,7 +85,7 @@ export const getUserProfile = async (req: Request, res: Response) => {
   try {
     const user = await prisma.user.findUnique({
       where: {
-        id: clerkUserId
+        clerkId: clerkUserId
       }
     })
 
@@ -95,7 +111,7 @@ export const updateUseProfile = async (req: Request, res: Response) => {
 
     const user = await prisma.user.update({
       where: {
-        id: clerkUserId
+        clerkId: clerkUserId
       },
       data: {
         bio: parsedBody.data.bio,
@@ -126,6 +142,7 @@ export const updateUserSkills = async (req: Request, res: Response) => {
 
     res.status(200).json({ message: 'Skills updated successfully.' })
   } catch (error) {
+    console.error(error)
     res.status(500).json({ error: 'Internal server error.' })
   }
 }

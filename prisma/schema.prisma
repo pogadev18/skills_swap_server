@@ -22,9 +22,12 @@ model User {
 
 model Skill {
   id    String      @id @default(cuid())
-  name  String
+  name  String      @unique
   tags  Tag[]
   users UserSkill[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model UserSkill {
@@ -33,7 +36,7 @@ model UserSkill {
   isOffered Boolean @default(false)
   weight    Int     @default(0)
   isActive  Boolean @default(false) // Indicates if a learning exchange is actively taking place
-  user      User    @relation(fields: [userId], references: [id])
+  user      User    @relation(fields: [userId], references: [clerkId], onDelete: Cascade)
   skill     Skill   @relation(fields: [skillId], references: [id])
 
   @@id([userId, skillId])
@@ -45,8 +48,8 @@ model Rating {
   revieweeId String
   score      Int
   comment    String?
-  reviewer   User     @relation("GivenRatings", fields: [reviewerId], references: [id])
-  reviewee   User     @relation("ReceivedRatings", fields: [revieweeId], references: [id])
+  reviewer   User     @relation("GivenRatings", fields: [reviewerId], references: [clerkId], onDelete: Cascade)
+  reviewee   User     @relation("ReceivedRatings", fields: [revieweeId], references: [clerkId], onDelete: Cascade)
   createdAt  DateTime @default(now())
 }
 
@@ -54,4 +57,7 @@ model Tag {
   id     String  @id @default(cuid())
   name   String  @unique
   skills Skill[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
