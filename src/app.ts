@@ -10,6 +10,7 @@ dotenv.config() // load env vars
 import testRoute from './routes/test'
 import clerkWebhookRoute from './routes/clerkWeebhook'
 import userRoute from './routes/user'
+import skillsRoute from './routes/skillsAndTags'
 
 const app = express()
 const port = process.env.PORT
@@ -36,6 +37,7 @@ ensure that only routes that require JSON parsing have it enabled.
 app.use('/test', express.json(), testRoute)
 app.use('/webhook', clerkWebhookRoute)
 app.use('/user', express.json(), userRoute)
+app.use('/skills', express.json(), skillsRoute)
 
 // Route not found (404)
 app.use((req, res, next) => {
