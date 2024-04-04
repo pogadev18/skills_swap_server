@@ -35,3 +35,30 @@ Skills can be categorized using tags, and a tag can be associated with many skil
 - `@@id([userId, skillId])` in `UserSkill` specifies a composite primary key, indicating that each record is uniquely identified by the combination of `userId` and `skillId`.
 - `@default(cuid())` generates a globally unique identifier for each record upon creation, used here for IDs.
 - `@updatedAt` automatically updates the timestamp whenever a record is modified.
+
+# Tag Schema Explained
+
+The Tag model is designed to categorize skills into more searchable and manageable groups. This categorization aids users in finding skills and other users more efficiently, especially as the number of skills on the platform grows.
+
+## Functionality
+Tags act as keywords or labels that can be attached to skills. For example, the skill "Coding" might have tags like "JavaScript", "Web Development", and "Programming Basics". This allows for more nuanced searches where users can find matches based on specific interests or expertise areas, rather than broad categories.
+
+## User Flow Example
+Bob is skilled in coding, and he's interested in learning guitar. When Bob adds "Coding" as a skill he can offer, SkillsSwap might suggest or allow him to select tags such as "JavaScript", "React", or "Software Engineering" to further specify his expertise. Similarly, when he searches for "Guitar", he might find Joe under tags like "Acoustic Guitar", "Music Theory", or "Beginner Guitar Lessons". This system enhances the matchmaking process by aligning users' specific interests and expertise.
+
+# `Weight` in UserSkill Explained
+
+The `weight` field in the UserSkill model is used to prioritize skills based on the user's preference or proficiency level. This can be particularly useful in optimizing the skill-matching algorithm.
+
+## Functionality
+The weight integer allows users to express how strongly they feel about learning or teaching a particular skill. A higher weight could indicate a stronger desire to learn a skill or a higher level of expertise in teaching it.
+
+## User Flow Example
+Bob is particularly proficient in "React", a subcategory of his coding skills, and he's very keen on learning "Classical Guitar", more so than just basic guitar skills. Bob could set a higher weight for his "React" skill when offering it and set a higher weight for "Classical Guitar" in his learning preferences. When Joe adds "Guitar" as a skill he can offer, he might specify his proficiency in "Classical Guitar" by assigning it a higher weight. The platform can then prioritize matching Bob and Joe for a skill swap in "React" and "Classical Guitar" due to the matching high weights, indicating a strong match in terms of both parties' preferences and proficiencies.
+
+# Utilizing Tags and Weights for Enhanced Matching
+
+Integrating the Tag and `weight` functionalities into SkillsSwap can significantly enhance the user experience by:
+
+- **Improving Search Precision:** Tags help users perform more granular searches, increasing the likelihood of finding exactly what they're looking for.
+- **Refining Matchmaking:** Weights allow the platform to consider not just whether users want to learn or teach a skill, but how strongly they feel about it, leading to more satisfying matches.

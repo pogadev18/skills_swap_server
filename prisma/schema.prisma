@@ -8,7 +8,7 @@ datasource db {
 }
 
 model User {
-  id String @id @default(cuid())
+  id              String      @id @default(cuid())
   clerkId         String      @unique
   bio             String?
   location        String?
@@ -32,7 +32,8 @@ model UserSkill {
   skillId   String
   isOffered Boolean @default(false)
   weight    Int     @default(0)
-  user      User    @relation(fields: [userId], references: [clerkId])
+  isActive  Boolean @default(false) // Indicates if a learning exchange is actively taking place
+  user      User    @relation(fields: [userId], references: [id])
   skill     Skill   @relation(fields: [skillId], references: [id])
 
   @@id([userId, skillId])
@@ -44,8 +45,8 @@ model Rating {
   revieweeId String
   score      Int
   comment    String?
-  reviewer   User     @relation("GivenRatings", fields: [reviewerId], references: [clerkId])
-  reviewee   User     @relation("ReceivedRatings", fields: [revieweeId], references: [clerkId])
+  reviewer   User     @relation("GivenRatings", fields: [reviewerId], references: [id])
+  reviewee   User     @relation("ReceivedRatings", fields: [revieweeId], references: [id])
   createdAt  DateTime @default(now())
 }
 
