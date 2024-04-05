@@ -37,19 +37,17 @@ app.use(morgan('combined')) // Logging HTTP requests
 /*
 - "express.json()" middleware is added individually to each route to
 ensure that only routes that require JSON parsing have it enabled.
-
 - the webhook route does not require JSON parsing, so it is not added.
-
 - maybe you can think of a way to refactor this code to avoid repeating.
-
 */
+
 // routes
 app.use(
   '/test',
   ClerkExpressRequireAuth({
-    authorizedParties: ['http://localhost:3000', 'https://clerk.dev'],
+    authorizedParties: [process.env.CLIENT_APP_URL!],
     onError(error) {
-      console.error('CLERK ERROR!!!!!!!:', error)
+      console.error(error)
     }
   }),
   express.json(),
