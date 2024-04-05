@@ -24,11 +24,6 @@ const handleUserCreated = async (eventData: UserWebhookEvent) => {
   }
 }
 
-
-// 2 improvements:
-// - cascade all - delete entire user record and all related records
-// - is it safe to have the /:userId in the URL?
-
 const handleUserDeleted = async (eventData: UserWebhookEvent) => {
   try {
     const { data } = eventData

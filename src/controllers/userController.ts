@@ -61,7 +61,7 @@ async function updateSkillTags(skillId: string, tagIds: string[]) {
     where: { id: skillId },
     data: {
       tags: {
-        connect: tagIds.map((id) => ({ id })) // Now connect the new tag IDs
+        connect: tagIds.map((id) => ({ id }))
       }
     }
   })
@@ -69,7 +69,6 @@ async function updateSkillTags(skillId: string, tagIds: string[]) {
 
 async function createOrUpdateUserSkill(userId: string, skillData: SkillData) {
   try {
-    // Assuming `skillData` now includes `skillId` and `tagIds` instead of names
     console.log(`Linking skill to user: ${userId}`)
 
     // Link the UserSkill
