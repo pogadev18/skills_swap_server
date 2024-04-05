@@ -1,10 +1,14 @@
+dotenv.config() // load env vars
+
 import express from 'express'
 import dotenv from 'dotenv'
 import helmet from 'helmet'
 import cors from 'cors'
 import morgan from 'morgan'
-
-dotenv.config() // load env vars
+import {
+  ClerkExpressRequireAuth,
+  type StrictAuthProp
+} from '@clerk/clerk-sdk-node'
 
 // routes
 import testRoute from './routes/test'
@@ -14,6 +18,12 @@ import skillsRoute from './routes/skillsAndTags'
 
 const app = express()
 const port = process.env.PORT
+
+declare global {
+  namespace Express {
+    interface Request extends StrictAuthProp {}
+  }
+}
 
 if (!process.env.PORT) {
   console.error('Error: PORT environment variable is not set.')
@@ -27,14 +37,22 @@ app.use(morgan('combined')) // Logging HTTP requests
 /*
 - "express.json()" middleware is added individually to each route to
 ensure that only routes that require JSON parsing have it enabled.
-
 - the webhook route does not require JSON parsing, so it is not added.
-
 - maybe you can think of a way to refactor this code to avoid repeating.
-
 */
+
 // routes
-app.use('/test', express.json(), testRoute)
+app.use(
+  '/test',
+  ClerkExpressRequireAuth({
+    authorizedParties: [process.env.CLIENT_APP_URL!],
+    onError(error) {
+      console.error(error)
+    }
+  }),
+  express.json(),
+  testRoute
+)
 app.use('/webhook', clerkWebhookRoute)
 app.use('/user', express.json(), userRoute)
 app.use('/skills', express.json(), skillsRoute)
