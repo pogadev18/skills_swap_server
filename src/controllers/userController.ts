@@ -16,65 +16,83 @@ const UserSchema = z.object({
 })
 
 type SkillData = {
-  name: string
+  skillId: string
   isOffered: boolean
   weight: number
-  tags: string[]
+  tagIds: string[]
+}
+
+/*
+TO TAKE INTO CONSIDERATION:
+- "updateSkillTags": Assuming I want to replace the tags associated with a skill every
+time I update a user's skill. This logic might suffer changes depending on the requirements
+of the application.
+
+- The repeated calls to prisma.skill.update and prisma.userSkill.upsert within loops
+are fine for low volumes of data but I should consider the potential impact on performance and
+rate limits for the database if / when scaling up. If I anticipate a high volume of concurrent
+updates, I might need to explore batching these operations or other optimization strategies.
+*/
+
+
+/*
+
+TODOS:
+- use zod to validate the payload of the updateUserSkills request
+- scenarios to test:
+  1. update existing skills with different isOffered, weight, or tagIds
+  2. remove all tags from a skill to ensure the clear and connect logic works as expected
+  3. handling and gracefully responding to invalid skillId or tagIds
+
+*/
+async function updateSkillTags(skillId: string, tagIds: string[]) {
+  // disconnect all current tags associated with the skill
+  await prisma.skill.update({
+    where: { id: skillId },
+    data: {
+      tags: {
+        set: [] // This clears out the current tags
+      }
+    }
+  })
+
+  // Then, connect the new tags
+  await prisma.skill.update({
+    where: { id: skillId },
+    data: {
+      tags: {
+        connect: tagIds.map((id) => ({ id })) // Now connect the new tag IDs
+      }
+    }
+  })
 }
 
 async function createOrUpdateUserSkill(userId: string, skillData: SkillData) {
-  console.log(`Starting process to create or update skill for user ${userId}`)
-
   try {
-    console.log(`Upserting skill: ${skillData.name}`)
-    // Find or create the Skill
-    let skill = await prisma.skill.upsert({
-      where: { name: skillData.name },
-      create: { name: skillData.name },
-      update: {}
-    })
-    console.log(`Upserted skill: ${skill.id}`)
+    // Assuming `skillData` now includes `skillId` and `tagIds` instead of names
+    console.log(`Linking skill to user: ${userId}`)
 
-    console.log(`Upserting user skill for user ${userId} and skill ${skill.id}`)
-    // Create or update the UserSkill
+    // Link the UserSkill
     await prisma.userSkill.upsert({
-      where: {
-        userId_skillId: {
-          userId,
-          skillId: skill.id
-        }
-      },
+      where: { userId_skillId: { userId, skillId: skillData.skillId } },
       create: {
         userId,
-        skillId: skill.id,
+        skillId: skillData.skillId,
         isOffered: skillData.isOffered,
         weight: skillData.weight
-        // isActive could be set elsewhere, e.g., when a match is made
       },
       update: {
         isOffered: skillData.isOffered,
         weight: skillData.weight
-        // isActive if needed
       }
     })
-    console.log(`Upserted user skill for user ${userId}`)
 
-    // Process tags
-    console.log(`Processing tags for skill ${skill.id}`)
-    for (const tagName of skillData.tags) {
-      console.log(`Upserting tag: ${tagName}`)
-      await prisma.tag.upsert({
-        where: { name: tagName },
-        create: { name: tagName, skills: { connect: { id: skill.id } } },
-        update: {}
-      })
-      console.log(`Upserted tag: ${tagName}`)
-    }
-    console.log(`Processed all tags for skill ${skill.id}`)
+    // After upserting UserSkill, update the tags associated with the skill
+    await updateSkillTags(skillData.skillId, skillData.tagIds)
 
-    console.log(`Finished process for user ${userId}`)
+    console.log(`Linked skill for user ${userId}`)
   } catch (error) {
-    console.error('Error during createOrUpdateUserSkill:', error)
+    console.error('Error during linking skill to user:', error)
     throw error
   }
 }
