@@ -10,6 +10,8 @@ import {
   type StrictAuthProp
 } from '@clerk/clerk-sdk-node'
 
+import { protectRoute } from './middleware/auth'
+
 // routes
 import testRoute from './routes/test'
 import clerkWebhookRoute from './routes/clerkWeebhook'
@@ -42,20 +44,10 @@ ensure that only routes that require JSON parsing have it enabled.
 */
 
 // routes
-app.use(
-  '/test',
-  ClerkExpressRequireAuth({
-    authorizedParties: [process.env.CLIENT_APP_URL!],
-    onError(error) {
-      console.error(error)
-    }
-  }),
-  express.json(),
-  testRoute
-)
+app.use('/test', testRoute)
 app.use('/webhook', clerkWebhookRoute)
-app.use('/user', express.json(), userRoute)
-app.use('/skills', express.json(), skillsRoute)
+app.use('/user', protectRoute(), userRoute)
+app.use('/skills', protectRoute(), skillsRoute)
 
 // Route not found (404)
 app.use((req, res, next) => {

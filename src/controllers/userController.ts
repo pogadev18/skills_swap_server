@@ -7,7 +7,7 @@ const UserSchema = z.object({
   bio: z
     .string()
     .min(20, { message: 'Bio must be at least 20 characters long.' }),
-  location: z // it can be "online" " in-person" or "hybrid"
+  meetingPreferance: z // it can be "online" " in-person" or "hybrid"
     .string()
     .min(5, { message: 'Location must be at least 5 characters long.' }),
   availability: z
@@ -33,7 +33,6 @@ are fine for low volumes of data but I should consider the potential impact on p
 rate limits for the database if / when scaling up. If I anticipate a high volume of concurrent
 updates, I might need to explore batching these operations or other optimization strategies.
 */
-
 
 /*
 
@@ -132,7 +131,7 @@ export const updateUseProfile = async (req: Request, res: Response) => {
       },
       data: {
         bio: parsedBody.data.bio,
-        location: parsedBody.data.location,
+        meetingPreferance: parsedBody.data.meetingPreferance,
         availability: parsedBody.data.availability
       }
     })
