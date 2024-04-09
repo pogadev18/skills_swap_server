@@ -1,10 +1,9 @@
 import type { Request, Response } from 'express'
+import { getTags } from './tag.dao'
 
-import prisma from '../utils/prisma'
-
-export const getAllTags = async (req: Request, res: Response) => {
+export const getTagsController = async (req: Request, res: Response) => {
   try {
-    const tags = await prisma.tag.findMany({})
+    const tags = await getTags()
     res.json(tags)
   } catch (error) {
     console.error('Error fetching tags:', error)
