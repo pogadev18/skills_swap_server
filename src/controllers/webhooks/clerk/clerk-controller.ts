@@ -3,12 +3,6 @@ import type { Request, Response } from 'express'
 import { Webhook } from 'svix'
 import type { WebhookEvent } from '@clerk/clerk-sdk-node'
 
-// comes from dao.ts
-// import {
-//   handleUserCreated,
-//   handleUserDeleted
-// } from '../webhookHandlers/userEvents'
-
 import { createUser, deleteUser } from './clerk.dao'
 
 export const listenToWeebhookEventController = async (

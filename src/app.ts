@@ -14,7 +14,7 @@ import { usersRoute } from './controllers/users/user.router'
 import { tagsRouter } from './controllers/tags/tag.router'
 import { skillsRouter } from './controllers/skills/skill.router'
 import { clerkRouter } from './controllers/webhooks/clerk/clerk.router'
-import { healthCheckRouter } from './controllers/healthCheck/health-check.route'
+import { healthCheckRouter } from './controllers/healthCheck/health-check.router'
 
 const app = express()
 const port = process.env.PORT
