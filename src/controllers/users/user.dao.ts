@@ -72,10 +72,7 @@ async function updateSkillTags(skillId: string, tagIds: string[]) {
   })
 }
 
-export async function updateUserSkill(
-  userId: string,
-  skillData: SkillData
-) {
+export async function updateUserSkill(userId: string, skillData: SkillData) {
   try {
     console.log(`Linking skill to user: ${userId}`)
 

@@ -8,6 +8,6 @@ export const getSkills = async () => {
       }
     })
   } catch (error) {
-    console.error('Error fetching tags:', error)
+    console.error('Error fetching skills:', error)
   }
 }
