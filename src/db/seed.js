@@ -1,22 +1,35 @@
 import { PrismaClient } from '@prisma/client'
 const prisma = new PrismaClient()
 
-async function addSkillWithTags(skillName, tags) {
-  const skill = await prisma.skill.create({
-    data: {
-      name: skillName,
-      tags: {
-        create: tags.map((tagName) => ({
-          name: tagName
-        }))
-      }
+let skillsAndTags = []
+
+async function addSkillWithTags() {
+  for (const { skill, tags } of skillsAndTags) {
+    try {
+      console.log(
+        `Attempting to add skill: ${skill} with tags: ${tags.join(', ')}`
+      )
+      await prisma.skill.create({
+        data: {
+          name: skill,
+          tags: {
+            create: tags.map((tagName) => ({
+              name: tagName
+            }))
+          }
+        }
+      })
+      console.log(`Successfully added skill: ${skill}`)
+    } catch (e) {
+      console.error(`Error adding skill: ${skill}. Error: ${e.message}`)
+      // If the error is due to a unique constraint on tags, it may not be immediately clear
+      // Consider adding more specific logging or checks here if tags often have duplicate names
     }
-  })
-  console.log(`Added skill: ${skill.name} with tags: ${tags.join(', ')}`)
+  }
 }
 
 async function run() {
-  await addSkillWithTags('Fighting', ['Box', 'KickBox', 'MMA'])
+  await addSkillWithTags()
 
   await prisma.$disconnect()
 }
