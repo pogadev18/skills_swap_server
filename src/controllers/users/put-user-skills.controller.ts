@@ -10,28 +10,39 @@ export type SkillData = {
 
 export const putUserSkillsController = async (req: Request, res: Response) => {
   const clerkUserId = req.params.userId as string
-  const skills: SkillData[] = await req.body
+  const payloadSkills: SkillData[] = req.body
 
   try {
-    const allUserSkills = await getAllUserSkills(clerkUserId)
-    const areAllSkillsNotOffered = allUserSkills.every(
-      (skill) => skill.isOffered === false
+    const dbUserSkills = await getAllUserSkills(clerkUserId)
+    const userHasNoSkills = dbUserSkills.length === 0
+
+    // check if there's at least one skill offered in the payload
+    const isAtLeastOneSkillOffered = payloadSkills.some(
+      (skill) => skill.isOffered
     )
 
-    /*
-     - there must be at least one skill offered
-     - we have also a client side validation for this, so theoretically this should never happen
-    */
-    if (areAllSkillsNotOffered) {
+    if (userHasNoSkills && !isAtLeastOneSkillOffered) {
+      return res.status(400).json({
+        error:
+          'Since your profile currently has no skills listed, you must offer/teach at least one skill to submit the form. We recommend offering skills in which you are proficient and comfortable teaching.'
+      })
+    }
+
+    // for users with skills, ensure there is at least one offered skill already or in the new payload
+    if (
+      !userHasNoSkills &&
+      !isAtLeastOneSkillOffered &&
+      dbUserSkills.every((skill) => !skill.isOffered)
+    ) {
       return res
         .status(400)
         .json({ error: 'At least one skill must be offered.' })
     }
 
-    for (const skillData of skills) {
-      await updateUserSkill(clerkUserId, skillData)
-    }
-
+    // Update user skills
+    await Promise.all(
+      payloadSkills.map((skillData) => updateUserSkill(clerkUserId, skillData))
+    )
     res.status(200).json({ message: 'Skills updated successfully.' })
   } catch (error) {
     console.error(error)
