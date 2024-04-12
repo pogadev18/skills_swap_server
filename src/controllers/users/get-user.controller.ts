@@ -6,13 +6,15 @@ export const getUserController = async (req: Request, res: Response) => {
   const clerkUserId = req.params.userId
 
   try {
-    const user = await getUser(clerkUserId)
+    const result = await getUser(clerkUserId)
 
-    if (!user) {
-      return res.status(404).json({ error: 'User not found.' })
+    if ('error' in result) {
+      return res
+        .status(result.error === 'User not found.' ? 404 : 500)
+        .json(result)
     }
 
-    res.status(200).json(user)
+    res.status(200).json(result)
   } catch (error) {
     res.status(500).json({ error: 'Internal server error.' })
   }
