@@ -1,5 +1,5 @@
 import type { Request, Response } from 'express'
-import { updateUserSkill } from './user.dao'
+import { updateUserSkill, getAllUserSkills } from './user.dao'
 
 export type SkillData = {
   skillId: string
@@ -13,9 +13,16 @@ export const putUserSkillsController = async (req: Request, res: Response) => {
   const skills: SkillData[] = await req.body
 
   try {
-    const notOfferedSkills = skills.filter((skill) => !skill.isOffered)
+    const allUserSkills = await getAllUserSkills(clerkUserId)
+    const areAllSkillsNotOffered = allUserSkills.every(
+      (skill) => skill.isOffered === false
+    )
 
-    if (notOfferedSkills.length === skills.length) {
+    /*
+     - there must be at least one skill offered
+     - we have also a client side validation for this, so theoretically this should never happen
+    */
+    if (areAllSkillsNotOffered) {
       return res
         .status(400)
         .json({ error: 'At least one skill must be offered.' })
