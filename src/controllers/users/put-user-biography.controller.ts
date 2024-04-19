@@ -13,7 +13,7 @@ const UserBioSchema = z.object({
     .min(2, { message: 'Availability must be at least 2 characters long.' })
 })
 
-export type UserBioData = z.infer<typeof UserBioSchema>
+export type UserBioData = z.infer<typeof UserBioSchema> // todo: use from Prisma Client?
 
 export const putUserBiographyController = async (
   req: Request,

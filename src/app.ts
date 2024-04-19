@@ -14,6 +14,7 @@ import { usersRoute } from './controllers/users/user.router'
 import { tagsRouter } from './controllers/tags/tag.router'
 import { skillsRouter } from './controllers/skills/skill.router'
 import { clerkRouter } from './controllers/webhooks/clerk/clerk.router'
+import { cardRouter } from './controllers/cards/card.router'
 import { healthCheckRouter } from './controllers/healthCheck/health-check.router'
 
 const app = express()
@@ -40,6 +41,7 @@ app.use('/webhook', clerkRouter)
 app.use('/users', protectRoute(), usersRoute)
 app.use('/skills', protectRoute(), skillsRouter)
 app.use('/tags', protectRoute(), tagsRouter)
+app.use('/cards', protectRoute(), cardRouter)
 
 // Route not found (404)
 app.use((req, res, next) => {

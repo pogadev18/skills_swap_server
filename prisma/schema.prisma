@@ -18,6 +18,17 @@ model User {
   receivedRatings   Rating[]    @relation("ReceivedRatings") // Ratings received by this user
   createdAt         DateTime    @default(now())
   updatedAt         DateTime    @updatedAt
+  UserCard          UserCard?
+}
+
+model UserCard {
+  id            String   @id @default(cuid())
+  user          User     @relation(fields: [userId], references: [clerkId], onDelete: Cascade)
+  userId        String   @unique
+  isActive      Boolean  @default(false)
+  shareableLink String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }
 
 model Skill {

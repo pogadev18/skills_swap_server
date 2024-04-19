@@ -5,7 +5,6 @@ import type { UserBioData } from './put-user-biography.controller'
 import type { SkillData } from './put-user-skills.controller'
 
 export async function getUser(userId: string | undefined) {
-  // todo: think of other alternatives to select only the necessary fields (looks kind of fishy now)
   const user = await prisma.user.findUnique({
     where: {
       clerkId: userId
@@ -33,6 +32,14 @@ export async function getUser(userId: string | undefined) {
               }
             }
           }
+        }
+      },
+      UserCard: {
+        select: {
+          isActive: true,
+          shareableLink: true,
+          createdAt: true,
+          updatedAt: true
         }
       }
     }

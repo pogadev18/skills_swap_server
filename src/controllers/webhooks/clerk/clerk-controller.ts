@@ -3,6 +3,7 @@ import type { Request, Response } from 'express'
 import { Webhook } from 'svix'
 import type { WebhookEvent } from '@clerk/clerk-sdk-node'
 import { createUser, deleteUser } from '../../users/user.dao'
+import { createCard } from '../../cards/card.dao'
 
 export const listenToWeebhookEventController = async (
   req: Request,
@@ -59,7 +60,11 @@ export const listenToWeebhookEventController = async (
   }
 
   if (eventType === 'user.created') {
-    await createUser(data.id as string)
+    // todo: these architecute inside the models might change in the future
+    await Promise.all([
+      createUser(data.id as string),
+      createCard(data.id as string)
+    ])
   }
 
   if (eventType === 'user.deleted') {
